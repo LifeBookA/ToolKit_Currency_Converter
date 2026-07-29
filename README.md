@@ -4,12 +4,21 @@
 
 A powerful and flexible currency conversion module for PHP with built-in file-based caching support. This module provides:
 
-- **Real-time exchange rates** via API (exchangerate.host)
+- **Real-time exchange rates** via API (exchangerate-api.com V6)
 - **Fixed rate provider** for testing/offline scenarios
 - **File-based caching** to reduce API calls and improve performance
 - **Multiple providers** with easy switching via configuration
 - **Exception handling** for robust error management
 - **PSR-4 compliant** autoloading
+
+### Key Features
+
+✅ **18 PHP classes** with full documentation  
+✅ **File-based JSON cache** with TTL support  
+✅ **Stale cache fallback** when API is unavailable  
+✅ **Cross-rate calculation** for any currency pair  
+✅ **Value objects** for type-safe results  
+✅ **Helper utilities** for currency code validation  
 
 ## 📁 Project Structure
 
@@ -23,7 +32,7 @@ Toolkit/
 │       │   ├── CurrencyConverterInterface.php
 │       │   └── ExchangeRateProviderInterface.php
 │       ├── Provider/
-│       │   ├── ExchangeRateHostProvider.php  # API-based provider
+│       │   ├── ExchangeRateHostProvider.php  # API-based provider (V6)
 │       │   ├── FixedRateProvider.php         # Fixed rates for testing
 │       │   └── ProviderFactory.php           # Provider factory
 │       ├── Cache/
@@ -120,8 +129,9 @@ CurrencyConfig::$defaultTo = 'EUR';
 // Provider selection ('api' or 'fixed')
 CurrencyConfig::$provider = 'api';
 
-// API settings
-CurrencyConfig::$apiUrl = 'https://api.exchangerate.host/latest';
+// API settings (V6 endpoint)
+CurrencyConfig::$apiUrl = 'https://v6.exchangerate-api.com/v6/';
+CurrencyConfig::$apiKey = 'YOUR_API_KEY_HERE'; // Get free key from exchangerate-api.com
 CurrencyConfig::$apiTimeout = 5;
 
 // Fixed rates (for FixedRateProvider)
@@ -133,15 +143,31 @@ CurrencyConfig::$fixedRates = [
 ];
 ```
 
+### Getting an API Key
+
+1. Visit [https://www.exchangerate-api.com/](https://www.exchangerate-api.com/)
+2. Sign up for a free account
+3. Get your API key from the dashboard
+4. Set it in your config: `CurrencyConfig::setApiKey('your-key-here');`
+
+The free tier includes:
+- 1,500 API requests/month
+- Daily rate updates
+- All world currencies
+
 ## 🔌 Providers
 
 ### API Provider (Default)
 
-Fetches real-time rates from exchangerate.host:
+Fetches real-time rates from exchangerate-api.com V6:
 
 ```php
 use Toolkit\Currency\Provider\ExchangeRateHostProvider;
 use Toolkit\Currency\CurrencyConverter;
+use Toolkit\Currency\Config\CurrencyConfig;
+
+// Set your API key first
+CurrencyConfig::setApiKey('your-free-api-key');
 
 $provider = new ExchangeRateHostProvider();
 $converter = new CurrencyConverter($provider);

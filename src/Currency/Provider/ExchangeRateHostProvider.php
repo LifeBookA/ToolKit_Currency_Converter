@@ -11,7 +11,7 @@ use Toolkit\Currency\Helpers\CurrencyHelper;
 /**
  * Exchange Rate Host API Provider
  * 
- * Fetches exchange rates from exchangerate.host API
+ * Fetches exchange rates from exchangerate-api.com V6 API
  * 
  * @package Toolkit\Currency\Provider
  */
@@ -23,6 +23,11 @@ class ExchangeRateHostProvider implements ExchangeRateProviderInterface
     private string $apiUrl;
 
     /**
+     * API Key
+     */
+    private string $apiKey;
+
+    /**
      * API timeout in seconds
      */
     private int $timeout;
@@ -31,11 +36,13 @@ class ExchangeRateHostProvider implements ExchangeRateProviderInterface
      * Constructor
      * 
      * @param string|null $apiUrl Optional custom API URL
+     * @param string|null $apiKey Optional API key (uses config if not provided)
      * @param int|null $timeout Optional custom timeout
      */
-    public function __construct(?string $apiUrl = null, ?int $timeout = null)
+    public function __construct(?string $apiUrl = null, ?string $apiKey = null, ?int $timeout = null)
     {
         $this->apiUrl = $apiUrl ?? CurrencyConfig::getApiUrl();
+        $this->apiKey = $apiKey ?? CurrencyConfig::getApiKey();
         $this->timeout = $timeout ?? CurrencyConfig::getApiTimeout();
     }
 
@@ -56,12 +63,22 @@ class ExchangeRateHostProvider implements ExchangeRateProviderInterface
         $from = CurrencyHelper::normalizeCurrencyCode($from);
         $to = CurrencyHelper::normalizeCurrencyCode($to);
 
-        // Build API URL
+        // Handle same currency conversion
+        if ($from === $to) {
+            return 1.0;
+        }
+
+        // Check if API key is set
+        if (empty($this->apiKey) || $this->apiKey === 'YOUR_FREE_API_KEY_HERE') {
+            throw new ApiException("API key not configured. Please set CurrencyConfig::\$apiKey or pass it to the constructor.");
+        }
+
+        // Build API URL for V6: https://v6.exchangerate-api.com/v6/{API_KEY}/latest/{BASE}
         $url = sprintf(
-            '%s?base=%s&symbols=%s',
+            '%s%s/latest/%s',
             rtrim($this->apiUrl, '/'),
-            urlencode($from),
-            urlencode($to)
+            $this->apiKey,
+            urlencode($from)
         );
 
         // Initialize cURL
@@ -103,36 +120,22 @@ class ExchangeRateHostProvider implements ExchangeRateProviderInterface
             throw new ApiException("Invalid JSON response: " . json_last_error_msg());
         }
 
-        // Extract rate
-        if (!isset($data['rates']) || !is_array($data['rates'])) {
-            throw new ApiException("Invalid API response: missing 'rates' field");
+        // Check for API error result
+        if (isset($data['result']) && $data['result'] === 'error') {
+            $errorMsg = $data['error-type'] ?? 'Unknown API error';
+            throw new ApiException("API error: {$errorMsg}");
         }
 
-        if (!isset($data['rates'][$to])) {
+        // Extract rate
+        if (!isset($data['conversion_rates']) || !is_array($data['conversion_rates'])) {
+            throw new ApiException("Invalid API response: missing 'conversion_rates' field");
+        }
+
+        if (!isset($data['conversion_rates'][$to])) {
             throw new InvalidCurrencyException($to, "Currency not found in API response");
         }
 
-        $rate = (float) $data['rates'][$to];
-        
-        // Handle same currency conversion
-        if ($from === $to) {
-            return 1.0;
-        }
-
-        // If base is not USD, we need to calculate cross rate
-        if ($from !== 'USD') {
-            // Fetch rates with USD as base to calculate cross rate
-            $usdRates = $this->fetchRates('USD');
-            
-            if (!isset($usdRates[$from]) || !isset($usdRates[$to])) {
-                throw new InvalidCurrencyException($from, "Cannot calculate cross rate");
-            }
-            
-            // Cross rate: (USD->to) / (USD->from)
-            $rate = $usdRates[$to] / $usdRates[$from];
-        }
-
-        return $rate;
+        return (float) $data['conversion_rates'][$to];
     }
 
     /**
@@ -147,10 +150,16 @@ class ExchangeRateHostProvider implements ExchangeRateProviderInterface
 
         $base = CurrencyHelper::normalizeCurrencyCode($base);
 
-        // Build API URL
+        // Check if API key is set
+        if (empty($this->apiKey) || $this->apiKey === 'YOUR_FREE_API_KEY_HERE') {
+            throw new ApiException("API key not configured. Please set CurrencyConfig::\$apiKey or pass it to the constructor.");
+        }
+
+        // Build API URL for V6
         $url = sprintf(
-            '%s?base=%s',
+            '%s%s/latest/%s',
             rtrim($this->apiUrl, '/'),
+            $this->apiKey,
             urlencode($base)
         );
 
@@ -193,11 +202,17 @@ class ExchangeRateHostProvider implements ExchangeRateProviderInterface
             throw new ApiException("Invalid JSON response: " . json_last_error_msg());
         }
 
-        // Extract rates
-        if (!isset($data['rates']) || !is_array($data['rates'])) {
-            throw new ApiException("Invalid API response: missing 'rates' field");
+        // Check for API error result
+        if (isset($data['result']) && $data['result'] === 'error') {
+            $errorMsg = $data['error-type'] ?? 'Unknown API error';
+            throw new ApiException("API error: {$errorMsg}");
         }
 
-        return $data['rates'];
+        // Extract rates
+        if (!isset($data['conversion_rates']) || !is_array($data['conversion_rates'])) {
+            throw new ApiException("Invalid API response: missing 'conversion_rates' field");
+        }
+
+        return $data['conversion_rates'];
     }
 }

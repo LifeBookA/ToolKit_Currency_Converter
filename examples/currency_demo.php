@@ -32,11 +32,13 @@ $cache->clear();
 echo "[INFO] Cache cleared for fresh demo\n\n";
 
 // ========================================
-// Test 1: Convert USD to EUR (API Provider)
+// Test 1: Convert USD to EUR (Fixed Rate - Demo Mode)
 // ========================================
-echo "--- Test 1: Convert 100 USD to EUR (API) ---\n";
+echo "--- Test 1: Convert 100 USD to EUR (Fixed Rate) ---\n";
 try {
-    $converter = new CurrencyConverter();
+    // Use fixed rate provider for demo (no API key required)
+    $fixedProvider = new FixedRateProvider();
+    $converter = new CurrencyConverter($fixedProvider);
     $result = $converter->convert(100, 'USD', 'EUR');
     
     echo "Amount: {$result->amount} {$result->from}\n";
@@ -50,11 +52,12 @@ try {
 }
 
 // ========================================
-// Test 2: Convert GBP to IRR (API Provider)
+// Test 2: Convert GBP to IRR (Fixed Rate Provider)
 // ========================================
-echo "--- Test 2: Convert 50 GBP to IRR (API) ---\n";
+echo "--- Test 2: Convert 50 GBP to IRR (Fixed Rate) ---\n";
 try {
-    $converter = new CurrencyConverter();
+    $fixedProvider = new FixedRateProvider();
+    $converter = new CurrencyConverter($fixedProvider);
     $result = $converter->convert(50, 'GBP', 'IRR');
     
     echo "Amount: {$result->amount} {$result->from}\n";
@@ -71,7 +74,8 @@ try {
 // ========================================
 echo "--- Test 3: Convert 100 USD to EUR again (Cached) ---\n";
 try {
-    $converter = new CurrencyConverter();
+    $fixedProvider = new FixedRateProvider();
+    $converter = new CurrencyConverter($fixedProvider);
     $result = $converter->convert(100, 'USD', 'EUR');
     
     echo "Amount: {$result->amount} {$result->from}\n";
@@ -84,33 +88,27 @@ try {
 }
 
 // ========================================
-// Test 4: Fixed Rate Provider
+// Test 4: API Provider (with warning if no key)
 // ========================================
-echo "--- Test 4: Fixed Rate Provider ---\n";
-CurrencyConfig::setProvider('fixed');
+echo "--- Test 4: API Provider (requires valid API key) ---\n";
+echo "[INFO] To use the API provider, get a free API key from:\n";
+echo "       https://www.exchangerate-api.com/\n";
+echo "[INFO] Then set: CurrencyConfig::setApiKey('YOUR_API_KEY')\n\n";
 
 try {
-    $fixedProvider = new FixedRateProvider();
-    $converter = new CurrencyConverter($fixedProvider);
+    // This will fail without a valid API key
+    $apiProvider = new ExchangeRateHostProvider();
+    $converter = new CurrencyConverter($apiProvider);
     
     $result = $converter->convert(100, 'USD', 'EUR');
-    echo "Fixed Rate - 100 USD to EUR:\n";
+    echo "API Rate - 100 USD to EUR:\n";
     echo "Result: {$result->result} {$result->to}\n";
     echo "Rate: {$result->rate}\n";
     echo "String: {$result}\n\n";
     
-    $result = $converter->convert(50, 'GBP', 'IRR');
-    echo "Fixed Rate - 50 GBP to IRR:\n";
-    echo "Result: " . number_format($result->result, 2) . " {$result->to}\n";
-    echo "Rate: {$result->rate}\n";
-    echo "String: {$result}\n\n";
-    
 } catch (Exception $e) {
-    echo "[ERROR] " . $e->getMessage() . "\n\n";
+    echo "[EXPECTED WITHOUT KEY] " . $e->getMessage() . "\n\n";
 }
-
-// Reset provider
-CurrencyConfig::setProvider('api');
 
 // ========================================
 // Test 5: Get Supported Currencies

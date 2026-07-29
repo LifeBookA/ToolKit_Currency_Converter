@@ -37,9 +37,17 @@ class CurrencyConfig
     public static string $provider = 'api';
 
     /**
-     * API URL for exchange rates (using free exchangerate-api.com)
+     * API URL for exchange rates (using free exchangerate-api.com V6)
+     * Note: V6 endpoint format is different from V4
      */
-    public static string $apiUrl = 'https://api.exchangerate-api.com/v4/latest';
+    public static string $apiUrl = 'https://v6.exchangerate-api.com/v6/';
+    
+    /**
+     * API Key for exchangerate-api.com (free tier)
+     * Set this to your actual API key from https://www.exchangerate-api.com/
+     * For demo purposes, we use a placeholder that will be replaced
+     */
+    public static string $apiKey = 'YOUR_FREE_API_KEY_HERE';
 
     /**
      * API timeout in seconds
@@ -188,6 +196,27 @@ class CurrencyConfig
     public static function setApiUrl(string $url): void
     {
         self::$apiUrl = $url;
+    }
+
+    /**
+     * Get API Key
+     * 
+     * @return string
+     */
+    public static function getApiKey(): string
+    {
+        return self::$apiKey;
+    }
+
+    /**
+     * Set API Key
+     * 
+     * @param string $key
+     * @return void
+     */
+    public static function setApiKey(string $key): void
+    {
+        self::$apiKey = $key;
     }
 
     /**
