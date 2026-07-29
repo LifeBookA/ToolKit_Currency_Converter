@@ -34,7 +34,7 @@ class CurrencyConfig
     /**
      * Provider type: 'api', 'fixed', or 'ecb'
      */
-    public static string $provider = 'api';
+    public static string $provider = 'fixed';
     
     /**
      * API URL for exchange rates (using free exchangerate-api.com V6)
@@ -47,7 +47,7 @@ class CurrencyConfig
      * Set this to your actual API key from https://www.exchangerate-api.com/
      * For demo purposes, we use a placeholder that will be replaced
      */
-    public static string $apiKey = 'YOUR_FREE_API_KEY_HERE';
+    public static string $apiKey = '';
     
     /**
      * Alternative free API: European Central Bank (no key required)
