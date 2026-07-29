@@ -1,0 +1,16 @@
+```
+# Cache and temporary files
+cache/
+*.tmp
+
+# Dependencies
+vendor/
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
+*.env.*
+```
