@@ -32,10 +32,10 @@ class CurrencyConfig
     public static string $defaultTo = 'EUR';
 
     /**
-     * Provider type: 'api' or 'fixed'
+     * Provider type: 'api', 'fixed', or 'ecb'
      */
     public static string $provider = 'api';
-
+    
     /**
      * API URL for exchange rates (using free exchangerate-api.com V6)
      * Note: V6 endpoint format is different from V4
@@ -48,6 +48,12 @@ class CurrencyConfig
      * For demo purposes, we use a placeholder that will be replaced
      */
     public static string $apiKey = 'YOUR_FREE_API_KEY_HERE';
+    
+    /**
+     * Alternative free API: European Central Bank (no key required)
+     * Set provider to 'ecb' to use this
+     */
+    public static string $ecbApiUrl = 'https://api.exchangerate.host/latest';
 
     /**
      * API timeout in seconds
@@ -217,6 +223,27 @@ class CurrencyConfig
     public static function setApiKey(string $key): void
     {
         self::$apiKey = $key;
+    }
+    
+    /**
+     * Get ECB API URL
+     * 
+     * @return string
+     */
+    public static function getEcbApiUrl(): string
+    {
+        return self::$ecbApiUrl;
+    }
+
+    /**
+     * Set ECB API URL
+     * 
+     * @param string $url
+     * @return void
+     */
+    public static function setEcbApiUrl(string $url): void
+    {
+        self::$ecbApiUrl = $url;
     }
 
     /**

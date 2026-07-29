@@ -88,9 +88,29 @@ try {
 }
 
 // ========================================
-// Test 4: API Provider (with warning if no key)
+// Test 4: ECB Provider (FREE, no API key required)
 // ========================================
-echo "--- Test 4: API Provider (requires valid API key) ---\n";
+echo "--- Test 4: ECB Provider (Free, No API Key) ---\n";
+try {
+    // Use European Central Bank provider - completely free!
+    $ecbProvider = new \Toolkit\Currency\Provider\EuropeanCentralBankProvider();
+    $converter = new CurrencyConverter($ecbProvider);
+    
+    $result = $converter->convert(100, 'USD', 'EUR');
+    echo "ECB Rate - 100 USD to EUR:\n";
+    echo "Result: {$result->result} {$result->to}\n";
+    echo "Rate: {$result->rate}\n";
+    echo "From Cache: " . ($result->fromCache ? 'Yes' : 'No') . "\n";
+    echo "String: {$result}\n\n";
+    
+} catch (Exception $e) {
+    echo "[ERROR] " . $e->getMessage() . "\n\n";
+}
+
+// ========================================
+// Test 5: API Provider (with warning if no key)
+// ========================================
+echo "--- Test 5: API Provider (requires valid API key) ---\n";
 echo "[INFO] To use the API provider, get a free API key from:\n";
 echo "       https://www.exchangerate-api.com/\n";
 echo "[INFO] Then set: CurrencyConfig::setApiKey('YOUR_API_KEY')\n\n";
@@ -111,9 +131,9 @@ try {
 }
 
 // ========================================
-// Test 5: Get Supported Currencies
+// Test 6: Get Supported Currencies
 // ========================================
-echo "--- Test 5: Supported Currencies ---\n";
+echo "--- Test 6: Supported Currencies ---\n";
 $converter = new CurrencyConverter();
 $currencies = $converter->getSupportedCurrencies();
 echo "Supported currencies: " . implode(', ', array_slice($currencies, 0, 10));
@@ -123,9 +143,9 @@ if (count($currencies) > 10) {
 echo "\n\n";
 
 // ========================================
-// Test 6: Get Exchange Rate
+// Test 7: Get Exchange Rate
 // ========================================
-echo "--- Test 6: Get Exchange Rate ---\n";
+echo "--- Test 7: Get Exchange Rate ---\n";
 try {
     $rate = $converter->getRate('USD', 'EUR');
     echo "USD to EUR rate: {$rate}\n\n";
@@ -134,9 +154,9 @@ try {
 }
 
 // ========================================
-// Test 7: Invalid Currency Code
+// Test 8: Invalid Currency Code
 // ========================================
-echo "--- Test 7: Invalid Currency Code ---\n";
+echo "--- Test 8: Invalid Currency Code ---\n";
 try {
     $result = $converter->convert(100, 'INVALID', 'EUR');
     echo "Result: {$result}\n\n";

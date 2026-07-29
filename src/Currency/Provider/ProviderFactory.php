@@ -18,7 +18,7 @@ class ProviderFactory
     /**
      * Create an exchange rate provider
      * 
-     * @param string|null $type Provider type ('api' or 'fixed'), uses config if null
+     * @param string|null $type Provider type ('api', 'fixed', or 'ecb'), uses config if null
      * @param array $options Optional options for the provider
      * @return ExchangeRateProviderInterface
      * @throws CurrencyException If provider type is invalid
@@ -31,6 +31,7 @@ class ProviderFactory
             case 'api':
                 return new ExchangeRateHostProvider(
                     $options['apiUrl'] ?? null,
+                    $options['apiKey'] ?? null,
                     $options['timeout'] ?? null
                 );
 
@@ -38,9 +39,15 @@ class ProviderFactory
                 return new FixedRateProvider(
                     $options['rates'] ?? null
                 );
+            
+            case 'ecb':
+                return new EuropeanCentralBankProvider(
+                    $options['timeout'] ?? null,
+                    $options['useAlternative'] ?? false
+                );
 
             default:
-                throw new CurrencyException("Invalid provider type: {$type}. Use 'api' or 'fixed'.");
+                throw new CurrencyException("Invalid provider type: {$type}. Use 'api', 'fixed', or 'ecb'.");
         }
     }
 }
