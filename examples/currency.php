@@ -13,8 +13,9 @@
  *   php currency.php help
  */
 
-// Bootstrap the application
-require_once __DIR__ . '/../src/Bootstrap.php';
+// Register autoloader directly
+require_once __DIR__ . '/../src/Autoloader.php';
+\Toolkit\Autoloader::register();
 
 use Toolkit\Currency\CLI\CurrencyCommand;
 
