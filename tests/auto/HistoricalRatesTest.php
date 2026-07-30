@@ -37,7 +37,7 @@ class HistoricalRatesTest {
             ];
         }
         
-        // Test 2: Get historical rates
+        // Test 2: Get historical rates using getRates method
         try {
             $manager = new HistoricalRateManager();
             // Save some test data
@@ -45,7 +45,7 @@ class HistoricalRatesTest {
             $manager->saveRate('USD', 'EUR', 0.85, time() - 43200);
             $manager->saveRate('USD', 'EUR', 0.86, time());
             
-            $rates = $manager->getHistoricalRates('USD', 'EUR', 3);
+            $rates = $manager->getRates('USD', 'EUR', 3);
             
             $results[] = [
                 'name' => 'Get historical rates',
@@ -60,10 +60,10 @@ class HistoricalRatesTest {
             ];
         }
         
-        // Test 3: Generate SVG chart
+        // Test 3: Generate SVG chart using generateSvgChart method
         try {
             $manager = new HistoricalRateManager();
-            $svg = $manager->generateChart('USD', 'EUR', 500, 300);
+            $svg = $manager->generateSvgChart('USD', 'EUR', 500, 300);
             
             $isValidSvg = strpos($svg, '<svg') !== false && 
                          strpos($svg, '</svg>') !== false &&

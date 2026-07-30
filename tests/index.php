@@ -126,11 +126,20 @@ function loadTestClass($filePath) {
 printHeader();
 printMenu($autoTests, $visualTests);
 
-if ($argc > 1) {
+// Detect CLI environment safely
+$isCli = php_sapi_name() === 'cli';
+$hasStdin = defined('STDIN');
+
+if ($isCli && $hasStdin && isset($argv) && count($argv) > 1) {
     $selection = $argv[1];
-} else {
+} elseif ($isCli && $hasStdin) {
     echo Colors::BOLD . "Enter your choice: " . Colors::RESET;
     $selection = trim(fgets(STDIN));
+} else {
+    // Web environment - show error or default to menu
+    echo Colors::RED . "This test runner must be executed from the command line (CLI).\n";
+    echo "Usage: php tests/index.php [option]\n" . Colors::RESET;
+    exit(1);
 }
 
 $allTests = array_merge($autoTests, $visualTests);

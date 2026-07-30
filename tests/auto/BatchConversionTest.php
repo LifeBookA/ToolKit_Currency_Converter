@@ -25,10 +25,10 @@ class BatchConversionTest {
         
         $batchConverter = new BatchCurrencyConverter($mainConverter);
         
-        // Test 1: Batch convert multiple amounts
+        // Test 1: Batch convert multiple amounts using convertBatch method
         try {
             $amounts = [10, 50, 100, 500];
-            $batchResults = $batchConverter->convertMultiple($amounts, 'USD', 'EUR');
+            $batchResults = $batchConverter->convertBatch($amounts, 'USD', 'EUR');
             
             $allValid = count($batchResults) === count($amounts);
             foreach ($batchResults as $result) {

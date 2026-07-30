@@ -14,12 +14,16 @@ class SecurityFeaturesTest {
     public function run(): array {
         $results = [];
         
-        // Test 1: HMAC API Signer
+        // Test 1: HMAC API Signer - Sign and Verify with correct parameters
         try {
             $signer = new ApiSigner('test_secret_key');
+            $method = 'POST';
+            $endpoint = '/api/v1/convert';
             $data = ['amount' => 100, 'from' => 'USD', 'to' => 'EUR'];
-            $signature = $signer->sign($data);
-            $isValid = $signer->verify($data, $signature);
+            $timestamp = time();
+            
+            $signature = $signer->sign($method, $endpoint, $data, $timestamp);
+            $isValid = $signer->verify($signature, $method, $endpoint, $data, $timestamp);
             
             $results[] = [
                 'name' => 'HMAC API Signer - Sign and Verify',
@@ -67,17 +71,17 @@ class SecurityFeaturesTest {
             $limiter = new RateLimiter(2, 60); // 2 requests per 60 seconds
             $userId = 'rate_limit_test_' . time();
             
-            // Make 2 requests (should be allowed)
-            $limiter->recordRequest($userId);
-            $limiter->recordRequest($userId);
+            // Make 2 requests (should be allowed via isAllowed)
+            $firstAllowed = $limiter->isAllowed($userId);
+            $secondAllowed = $limiter->isAllowed($userId);
             
             // Third request should be blocked
             $isBlocked = !$limiter->isAllowed($userId);
             
             $results[] = [
                 'name' => 'Rate Limiter - Block requests over limit',
-                'passed' => $isBlocked,
-                'message' => "Third request correctly blocked"
+                'passed' => $firstAllowed && $secondAllowed && $isBlocked,
+                'message' => "Third request correctly blocked after 2 allowed"
             ];
         } catch (Exception $e) {
             $results[] = [
