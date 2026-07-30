@@ -18,35 +18,23 @@ use Toolkit\Currency\Helpers\CurrencyHelper;
 class EuropeanCentralBankProvider implements ExchangeRateProviderInterface
 {
     /**
-     * ECB API URL
+     * Frankfurter API URL (reliable, free, no key required)
      */
-    private const API_URL = 'https://api.exchangerate.host/latest';
-    
-    /**
-     * Alternative ECB URL (more reliable)
-     */
-    private const ALTERNATIVE_API_URL = 'https://api.frankfurter.app/latest';
+    private const API_URL = 'https://api.frankfurter.app/latest';
     
     /**
      * API timeout in seconds
      */
     private int $timeout;
-    
-    /**
-     * Use alternative URL flag
-     */
-    private bool $useAlternative;
 
     /**
      * Constructor
      * 
      * @param int|null $timeout Optional custom timeout
-     * @param bool $useAlternative Use alternative API URL
      */
-    public function __construct(?int $timeout = null, bool $useAlternative = false)
+    public function __construct(?int $timeout = null)
     {
         $this->timeout = $timeout ?? 5;
-        $this->useAlternative = $useAlternative;
     }
 
     /**
@@ -74,7 +62,7 @@ class EuropeanCentralBankProvider implements ExchangeRateProviderInterface
         // ECB base is always EUR, so we need to calculate cross-rate
         $url = sprintf(
             '%s?base=%s&symbols=%s',
-            $this->useAlternative ? self::ALTERNATIVE_API_URL : self::API_URL,
+            self::API_URL,
             urlencode('EUR'),
             urlencode($from . ',' . $to)
         );
@@ -123,6 +111,11 @@ class EuropeanCentralBankProvider implements ExchangeRateProviderInterface
         
         if (isset($data['rates']) && is_array($data['rates'])) {
             $rates = $data['rates'];
+            // Add base currency with rate 1.0 if not present
+            $baseCurrency = $data['base'] ?? 'EUR';
+            if (!isset($rates[$baseCurrency])) {
+                $rates[$baseCurrency] = 1.0;
+            }
         } elseif (isset($data['conversion_rates']) && is_array($data['conversion_rates'])) {
             $rates = $data['conversion_rates'];
         } else {
@@ -167,7 +160,7 @@ class EuropeanCentralBankProvider implements ExchangeRateProviderInterface
         // ECB base is always EUR
         $url = sprintf(
             '%s?base=%s',
-            $this->useAlternative ? self::ALTERNATIVE_API_URL : self::API_URL,
+            self::API_URL,
             urlencode('EUR')
         );
 

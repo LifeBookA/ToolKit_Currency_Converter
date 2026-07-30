@@ -316,7 +316,7 @@ class HistoricalRateManager
         $firstDate = date('Y-m-d', $rates[0]['timestamp']);
         $lastDate = date('Y-m-d', end($rates)['timestamp']);
         
-        return <<<SVG
+        return <<<'SVG'
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="{$width}" height="{$height}" viewBox="0 0 {$width} {$height}">
   <rect width="100%" height="100%" fill="#ffffff"/>
@@ -359,7 +359,7 @@ SVG;
      */
     private function generateEmptyChart(int $width, int $height, string $message): string
     {
-        return <<<SVG
+        return <<<'SVG'
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="{$width}" height="{$height}" viewBox="0 0 {$width} {$height}">
   <rect width="100%" height="100%" fill="#f9fafb"/>

@@ -1,16 +1,25 @@
 ```
-# Cache and temporary files
+# Cache and data files
 cache/
-*.tmp
+data/
 
 # Dependencies
 vendor/
 
-# Logs
+# Logs and temp files
 *.log
+*.tmp
 
-# Environment files
+# Environment
 .env
 .env.local
 *.env.*
+
+# Editors
+.vscode/
+.idea/
+
+# OS specific
+.DS_Store
+Thumbs.db
 ```

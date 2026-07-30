@@ -21,7 +21,8 @@ class CurrencyHelper
      */
     public static function normalizeCurrencyCode(string $code): string
     {
-        return strtoupper(trim($code));
+        // Remove all whitespace and convert to uppercase
+        return strtoupper(preg_replace('/\s+/', '', $code));
     }
 
     /**
