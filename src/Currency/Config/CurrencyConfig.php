@@ -12,6 +12,16 @@ namespace Toolkit\Currency\Config;
 class CurrencyConfig
 {
     /**
+     * Directory for historical data files
+     */
+    public static string $historicalDataDir = __DIR__ . '/../../../data/historical';
+
+    /**
+     * Directory for rate limit files
+     */
+    public static string $rateLimitDir = __DIR__ . '/../../../data/rate_limits';
+
+    /**
      * Directory for cache files
      */
     public static string $cacheDir = __DIR__ . '/../../../cache/currency';
@@ -297,5 +307,47 @@ class CurrencyConfig
     public static function getFixedRate(string $currency): ?float
     {
         return self::$fixedRates[$currency] ?? null;
+    }
+
+    /**
+     * Get historical data directory
+     * 
+     * @return string
+     */
+    public static function getHistoricalDataDir(): string
+    {
+        return self::$historicalDataDir;
+    }
+
+    /**
+     * Set historical data directory
+     * 
+     * @param string $dir
+     * @return void
+     */
+    public static function setHistoricalDataDir(string $dir): void
+    {
+        self::$historicalDataDir = $dir;
+    }
+
+    /**
+     * Get rate limit directory
+     * 
+     * @return string
+     */
+    public static function getRateLimitDir(): string
+    {
+        return self::$rateLimitDir;
+    }
+
+    /**
+     * Set rate limit directory
+     * 
+     * @param string $dir
+     * @return void
+     */
+    public static function setRateLimitDir(string $dir): void
+    {
+        self::$rateLimitDir = $dir;
     }
 }
