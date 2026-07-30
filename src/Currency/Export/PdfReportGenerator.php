@@ -117,13 +117,20 @@ class PdfReportGenerator
         // Data rows
         $content .= "/F1 10 Tf\n";
         foreach ($conversions as $conv) {
+            // Handle both array and ConversionResult object
+            if (is_object($conv) && method_exists($conv, 'toArray')) {
+                $data = $conv->toArray();
+            } else {
+                $data = $conv;
+            }
+            
             $row = [
-                number_format($conv['amount'] ?? 0, 2),
-                $conv['from'] ?? '',
-                $conv['to'] ?? '',
-                number_format($conv['rate'] ?? 0, 6),
-                number_format($conv['result'] ?? 0, 2),
-                date('Y-m-d H:i:s', $conv['timestamp'] ?? time())
+                number_format($data['amount'] ?? 0, 2),
+                $data['from'] ?? '',
+                $data['to'] ?? '',
+                number_format($data['rate'] ?? 0, 6),
+                number_format($data['result'] ?? 0, 2),
+                date('Y-m-d H:i:s', $data['timestamp'] ?? time())
             ];
             
             foreach ($row as $i => $value) {

@@ -14,9 +14,9 @@ class MultiLanguageTest {
         
         // Test 1: English translations
         try {
-            Translator::setLocale('en');
-            $hello = Translator::translate('hello');
-            $conversion_success = Translator::translate('conversion_success');
+            $translator = new Translator('en');
+            $hello = $translator->trans('hello');
+            $conversion_success = $translator->trans('conversion_success');
             
             $results[] = [
                 'name' => 'English translations',
@@ -33,9 +33,9 @@ class MultiLanguageTest {
         
         // Test 2: Persian translations
         try {
-            Translator::setLocale('fa');
-            $hello = Translator::translate('hello');
-            $conversion_success = Translator::translate('conversion_success');
+            $translator = new Translator('fa');
+            $hello = $translator->trans('hello');
+            $conversion_success = $translator->trans('conversion_success');
             
             $results[] = [
                 'name' => 'Persian translations',
@@ -52,8 +52,8 @@ class MultiLanguageTest {
         
         // Test 3: Arabic translations
         try {
-            Translator::setLocale('ar');
-            $hello = Translator::translate('hello');
+            $translator = new Translator('ar');
+            $hello = $translator->trans('hello');
             
             $results[] = [
                 'name' => 'Arabic translations',
@@ -70,14 +70,14 @@ class MultiLanguageTest {
         
         // Test 4: Locale switching
         try {
-            Translator::setLocale('en');
-            $en_hello = Translator::translate('hello');
+            $translator = new Translator('en');
+            $en_hello = $translator->trans('hello');
             
-            Translator::setLocale('fa');
-            $fa_hello = Translator::translate('hello');
+            $translator->setLocale('fa');
+            $fa_hello = $translator->trans('hello');
             
-            Translator::setLocale('en');
-            $en_hello2 = Translator::translate('hello');
+            $translator->setLocale('en');
+            $en_hello2 = $translator->trans('hello');
             
             $results[] = [
                 'name' => 'Locale switching',

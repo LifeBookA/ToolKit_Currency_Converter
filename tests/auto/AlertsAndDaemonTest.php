@@ -22,14 +22,14 @@ class AlertsAndDaemonTest {
         
         // Test 1: Create Rate Alert
         try {
-            $alert = new RateAlert('USD', 'EUR', 'above', 0.90, 'test_user');
+            $alert = new RateAlert('USD', 'EUR', 0.90, '>=');
             
             $results[] = [
                 'name' => 'Create Rate Alert',
                 'passed' => $alert->getFrom() === 'USD' && 
                            $alert->getTo() === 'EUR' &&
-                           $alert->getThreshold() === 0.90,
-                'message' => "Alert created for USD/EUR above 0.90"
+                           $alert->getTargetRate() === 0.90,
+                'message' => "Alert created for USD/EUR >= 0.90"
             ];
         } catch (Exception $e) {
             $results[] = [
@@ -41,11 +41,12 @@ class AlertsAndDaemonTest {
         
         // Test 2: Save and Load Alert
         try {
-            $manager = new RateAlertManager();
-            $alert = new RateAlert('GBP', 'USD', 'below', 1.20, 'test_user_2');
+            $converter = new \Toolkit\Currency\CurrencyConverter();
+            $manager = new RateAlertManager($converter);
+            $alert = new RateAlert('GBP', 'USD', 1.20, '<=');
             $manager->addAlert($alert);
             
-            $alerts = $manager->getAlerts('test_user_2');
+            $alerts = $manager->getAllAlerts();
             
             $results[] = [
                 'name' => 'Save and Load Alert',
@@ -62,10 +63,10 @@ class AlertsAndDaemonTest {
         
         // Test 3: Check Alert Trigger
         try {
-            $alert = new RateAlert('USD', 'EUR', 'above', 0.50, 'trigger_test');
+            $alert = new RateAlert('USD', 'EUR', 0.50, '>');
             $currentRate = 0.85;
             
-            $isTriggered = $alert->checkTrigger($currentRate);
+            $isTriggered = $alert->check($currentRate);
             
             $results[] = [
                 'name' => 'Check Alert Trigger',
