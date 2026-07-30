@@ -392,5 +392,155 @@ Feel free to submit issues and enhancement requests!
 ---
 
 **Author**: Toolkit Team  
-**Version**: 1.0.0  
+**Version**: 1.1.1  
 **PHP Version**: 8.2+
+
+---
+
+## 🆕 New Features in v1.1.1
+
+### Batch Conversion
+Convert multiple amounts efficiently with a single rate fetch:
+
+```php
+use Toolkit\Currency\Batch\BatchCurrencyConverter;
+
+$batch = new BatchCurrencyConverter();
+$results = $batch->convertMultiple([
+    ['amount' => 100, 'from' => 'USD', 'to' => 'EUR'],
+    ['amount' => 50, 'from' => 'GBP', 'to' => 'IRR'],
+    ['amount' => 200, 'from' => 'USD', 'to' => 'JPY'],
+]);
+
+foreach ($results as $result) {
+    echo $result . "\n";
+}
+```
+
+### Cryptocurrency Provider
+Support for Bitcoin, Ethereum, and 20+ cryptocurrencies:
+
+```php
+use Toolkit\Currency\Provider\CryptoProvider;
+use Toolkit\Currency\CurrencyConverter;
+
+$cryptoProvider = new CryptoProvider();
+$converter = new CurrencyConverter($cryptoProvider);
+
+// Convert BTC to USD
+$result = $converter->convert(1, 'BTC', 'USD');
+echo "1 BTC = {$result->result} USD\n";
+
+// Convert ETH to EUR
+$result = $converter->convert(10, 'ETH', 'EUR');
+echo "10 ETH = {$result->result} EUR\n";
+```
+
+### Rate Alerts
+Set alerts for specific exchange rates:
+
+```php
+use Toolkit\Currency\Alerts\RateAlert;
+use Toolkit\Currency\Alerts\RateAlertManager;
+
+// Create an alert
+$alert = RateAlert::create('USD', 'EUR', 'above', 0.90);
+$alert->setEmail('user@example.com');
+
+// Save alert
+$manager = new RateAlertManager();
+$manager->addAlert($alert);
+
+// Check all alerts
+$triggeredAlerts = $manager->checkAlerts();
+foreach ($triggeredAlerts as $triggered) {
+    echo "Alert triggered: {$triggered->getMessage()}\n";
+}
+```
+
+### CLI Commands
+Full-featured command-line interface:
+
+```bash
+# Convert currency
+php examples/currency.php convert 100 USD EUR
+
+# Get exchange rate
+php examples/currency.php rate GBP IRR
+
+# List supported currencies
+php examples/currency.php list
+
+# Batch conversion
+php examples/currency.php batch
+
+# Manage alerts
+php examples/currency.php alert add USD EUR above 0.90
+php examples/currency.php alert list
+php examples/currency.php alert remove 1
+
+# Help
+php examples/currency.php help
+```
+
+### Web Dashboard
+Beautiful web interface for currency conversion:
+
+```bash
+# Start the built-in PHP server
+php -S localhost:8000 examples/dashboard.php
+
+# Open browser at http://localhost:8000
+```
+
+Features:
+- Real-time conversion
+- Interactive charts (Chart.js from CDN)
+- Dark/Light theme toggle
+- Alert management
+- Multi-language support
+
+### Multi-language Support (i18n)
+Messages and errors in 5 languages:
+
+```php
+use Toolkit\Currency\I18n\Translator;
+
+// Set language
+Translator::setLocale('fa'); // Persian
+Translator::setLocale('ar'); // Arabic
+Translator::setLocale('fr'); // French
+Translator::setLocale('de'); // German
+Translator::setLocale('en'); // English (default)
+
+// Translate messages
+echo Translator::trans('conversion_success');
+echo Translator::trans('invalid_currency');
+```
+
+### Memory Cache
+High-performance in-memory caching:
+
+```php
+use Toolkit\Currency\Cache\MemoryCacheManager;
+use Toolkit\Currency\CurrencyConverter;
+
+$cache = new MemoryCacheManager();
+$converter = new CurrencyConverter(null, $cache);
+
+// Ultra-fast conversions without file I/O
+```
+
+### PSR-3 Style Logging
+Professional logging without external dependencies:
+
+```php
+use Toolkit\Currency\Log\SimpleLogger;
+
+$logger = new SimpleLogger('/path/to/logs/currency.log');
+
+$logger->debug('Debug message');
+$logger->info('Information message');
+$logger->warning('Warning message');
+$logger->error('Error message');
+```
