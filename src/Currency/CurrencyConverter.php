@@ -82,8 +82,10 @@ class CurrencyConverter implements CurrencyConverterInterface
         $from = CurrencyHelper::normalizeCurrencyCode($from);
         $to = CurrencyHelper::normalizeCurrencyCode($to);
 
-        // Get exchange rate
-        $rate = $this->getRate($from, $to);
+        // Get exchange rate with cache info
+        $rateInfo = $this->getRateWithCacheInfo($from, $to);
+        $rate = $rateInfo['rate'];
+        $fromCache = $rateInfo['fromCache'];
 
         // Create and return result
         return new ConversionResult(
@@ -92,8 +94,60 @@ class CurrencyConverter implements CurrencyConverterInterface
             $from,
             $to,
             time(),
-            false // fromCache is handled in getRate
+            $fromCache
         );
+    }
+
+    /**
+     * Get exchange rate with cache information
+     * 
+     * @param string $from Source currency
+     * @param string $to Target currency
+     * @return array{rate: float, fromCache: bool}
+     */
+    private function getRateWithCacheInfo(string $from, string $to): array
+    {
+        // Build cache key
+        $cacheKey = CurrencyHelper::buildCacheKey($from, $to);
+
+        // Try to get from cache first
+        try {
+            $cachedRate = $this->cache->get($cacheKey);
+            if ($cachedRate !== null) {
+                return ['rate' => (float) $cachedRate, 'fromCache' => true];
+            }
+        } catch (CacheException $e) {
+            // Log cache error but continue
+            error_log("Currency cache read error: " . $e->getMessage());
+        }
+
+        // Cache miss or error, fetch from provider
+        try {
+            $rate = $this->provider->fetchRate($from, $to);
+            
+            // Store in cache
+            try {
+                $this->cache->set($cacheKey, $rate, $this->config['cacheTtl']);
+            } catch (CacheException $e) {
+                // Log cache write error but continue
+                error_log("Currency cache write error: " . $e->getMessage());
+            }
+            
+            return ['rate' => $rate, 'fromCache' => false];
+        } catch (ApiException $e) {
+            // API failed, try to use stale cache if available
+            error_log("Currency API error: " . $e->getMessage() . ", attempting to use stale cache");
+            
+            // Try to read expired cache as fallback
+            $staleRate = $this->getStaleCache($cacheKey);
+            if ($staleRate !== null) {
+                error_log("Using stale cache rate for {$from}_{$to}: {$staleRate}");
+                return ['rate' => (float) $staleRate, 'fromCache' => true];
+            }
+            
+            // No stale cache, rethrow exception
+            throw $e;
+        }
     }
 
     /**

@@ -18,6 +18,9 @@ class CachingSystemTest {
         
         // Test 1: Memory Cache - First call (miss)
         $memoryCache = new MemoryCacheManager();
+        // Clear any existing cache from previous tests
+        $memoryCache->clear();
+        
         $converter = new CurrencyConverter(new FixedRateProvider(), $memoryCache);
         
         try {
